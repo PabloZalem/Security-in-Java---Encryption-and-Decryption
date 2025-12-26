@@ -70,10 +70,10 @@ public class AES {
             AES aes = new AES();
             aes.initFromStrings("CHuO1Fjd8YgJqTyapibFBQ==", "e3IYYJC2hxe24/EO");
             String encryptedMessage = aes.encrypt("Example");
-            String decryptedMessage = aes.decrypt(encryptedMessage);
+            // String decryptedMessage = aes.decrypt(encryptedMessage);
 
             System.err.println("Encrypted Message : " + encryptedMessage);
-            System.err.println("Decrypted Message : " + decryptedMessage);
+            // System.err.println("Decrypted Message : " + decryptedMessage);
         } catch (Exception ignored) {
         }
     }
