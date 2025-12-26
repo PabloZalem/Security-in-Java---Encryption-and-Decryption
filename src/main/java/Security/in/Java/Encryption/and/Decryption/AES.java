@@ -24,7 +24,7 @@ public class AES {
     SecretKey secretKey;
     private int KEY_SIZE = 128;
     private int T_LEN = 128;
-    Cipher encryptionCipher;
+    private byte[] IV;
 
     public void init() throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -36,8 +36,9 @@ public class AES {
     public String encrypt(String message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
         byte[] messageInBytes = message.getBytes();
-        encryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher encryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
         encryptionCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        IV = encryptionCipher.getIV();
         byte[] encryptedBytes = encryptionCipher.doFinal(messageInBytes);
         return encode(encryptedBytes);
     }
@@ -47,7 +48,7 @@ public class AES {
             InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         byte[] messageInBytes = decode(encryptedMessage);
         Cipher decryptionCipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(T_LEN, encryptionCipher.getIV());
+        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(T_LEN, IV);
         decryptionCipher.init(Cipher.DECRYPT_MODE, secretKey, gcmParameterSpec);
         byte[] decryptedBytes = decryptionCipher.doFinal(messageInBytes);
         return new String(decryptedBytes);
@@ -62,6 +63,11 @@ public class AES {
         return Base64.getDecoder().decode(data);
     }
 
+    private void exportKeys() {
+        System.err.println("Secret Key: " + encode(secretKey.getEncoded()));
+        System.err.println("IV: " + encode(IV));
+    }
+
     public static void main(String[] args) {
         try {
             AES aes = new AES();
@@ -70,6 +76,7 @@ public class AES {
             String decryptedMessage = aes.decrypt(encryptionMessage);
             System.err.println("Encrypted Message: " + encryptionMessage);
             System.err.println("Decrypted Message: " + decryptedMessage);
+            aes.exportKeys();
         } catch (Exception e) {
 
         }
